@@ -315,7 +315,7 @@
             <div class="input-group">
                 <label for="friendRate">Friend/Market Rate (Bs per $1):</label>
                 <div class="input-with-label">
-                    <input type="number" id="friendRate" placeholder="45.50" step="0.01">
+                    <input type="number" id="friendRate" placeholder="0" step="0.01" value="0">
                     <span class="currency-label">Bs/$</span>
                 </div>
             </div>
@@ -325,7 +325,7 @@
             <div class="input-group">
                 <label for="dollarPrice">Store Price in Dollars:</label>
                 <div class="input-with-label">
-                    <input type="number" id="dollarPrice" placeholder="260" step="0.01">
+                    <input type="number" id="dollarPrice" placeholder="0" step="0.01" value="0">
                     <span class="currency-label">$</span>
                 </div>
             </div>
@@ -333,14 +333,11 @@
             <div class="input-group">
                 <label for="bolivarPrice">Store Price in Bolivares:</label>
                 <div class="input-with-label">
-                    <input type="number" id="bolivarPrice" placeholder="11700" step="0.01">
+                    <input type="number" id="bolivarPrice" placeholder="0" step="0.01" value="0">
                     <span class="currency-label">Bs</span>
                 </div>
             </div>
             
-            <button class="calculate-btn" onclick="calculate()">
-                🧮 Calculate Best Option
-            </button>
             
             <div id="result"></div>
             
@@ -458,12 +455,9 @@
             const dollarPrice = parseFloat(document.getElementById('dollarPrice').value);
             const bolivarPrice = parseFloat(document.getElementById('bolivarPrice').value);
             
-            if (!friendRate || !dollarPrice || !bolivarPrice) {
-                document.getElementById('result').innerHTML = `
-                    <div class="result" style="background: #ef4444; color: white;">
-                        <div class="result-title">⚠️ Please fill in all fields</div>
-                    </div>
-                `;
+            // Only calculate if all fields have valid values
+            if (!friendRate || !dollarPrice || !bolivarPrice || friendRate <= 0 || dollarPrice <= 0 || bolivarPrice <= 0) {
+                document.getElementById('result').innerHTML = '';
                 return;
             }
             
