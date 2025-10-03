@@ -19,6 +19,10 @@
     <!-- Icons -->
     <link rel="icon" type="image/svg+xml" href="./icons/icon-192.svg">
     <link rel="apple-touch-icon" href="./icons/icon-192.svg">
+    
+    <!-- Cleave.js for elegant input formatting -->
+    <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -392,7 +396,7 @@
                 <div class="input-content">
                     <label for="friendRate">Friend/Market Rate (Bs per $1):</label>
                     <div class="input-with-label">
-                        <input type="number" id="friendRate" placeholder="0" step="0.01">
+                        <input type="text" id="friendRate" placeholder="0">
                         <span class="currency-label">Bs/$</span>
                     </div>
                 </div>
@@ -407,7 +411,7 @@
                 <div class="input-content">
                     <label for="dollarPrice">Store Price in Dollars:</label>
                     <div class="input-with-label">
-                        <input type="number" id="dollarPrice" placeholder="0" step="0.01">
+                        <input type="text" id="dollarPrice" placeholder="0">
                         <span class="currency-label">$</span>
                     </div>
                 </div>
@@ -422,7 +426,7 @@
                 <div class="input-content">
                     <label for="bolivarPrice">Store Price in Bolivares:</label>
                     <div class="input-with-label">
-                        <input type="number" id="bolivarPrice" placeholder="0" step="0.01">
+                        <input type="text" id="bolivarPrice" placeholder="0">
                         <span class="currency-label">Bs</span>
                     </div>
                 </div>
@@ -720,40 +724,9 @@
             }
         }
         
-        // Format input with thousands separators
-        function formatNumber(value) {
-            // Remove all non-digit characters except decimal point
-            const numStr = value.toString().replace(/[^\d.]/g, '');
-            
-            // Split by decimal point
-            const parts = numStr.split('.');
-            
-            // Add commas to integer part
-            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            
-            // Join back with decimal if it exists
-            return parts.join('.');
-        }
-        
         function parseNumber(value) {
             // Remove commas and return number
             return parseFloat(value.replace(/,/g, '') || '0');
-        }
-        
-        function handleInputFormat(event) {
-            const input = event.target;
-            const cursorPos = input.selectionStart;
-            const oldValue = input.value;
-            const oldLength = oldValue.length;
-            
-            // Format the value
-            const newValue = formatNumber(oldValue);
-            input.value = newValue;
-            
-            // Adjust cursor position
-            const newLength = newValue.length;
-            const offset = newLength - oldLength;
-            input.setSelectionRange(cursorPos + offset, cursorPos + offset);
         }
         
         // Auto-calculate when inputs change
@@ -761,10 +734,25 @@
             // Fetch rates on load
             fetchRates();
             
-            // Add event listeners
+            // Initialize Cleave.js for elegant number formatting FIRST
+            new Cleave('#friendRate', {
+                numeral: true,
+                numeralThousandsGroupStyle: 'thousand'
+            });
+            
+            new Cleave('#dollarPrice', {
+                numeral: true,
+                numeralThousandsGroupStyle: 'thousand'
+            });
+            
+            new Cleave('#bolivarPrice', {
+                numeral: true,
+                numeralThousandsGroupStyle: 'thousand'
+            });
+            
+            // Add event listeners AFTER Cleave.js initialization
             document.querySelectorAll('input').forEach(input => {
                 input.addEventListener('input', calculate);
-                input.addEventListener('input', handleInputFormat);
             });
             
             // Start guided flow for first-time users
