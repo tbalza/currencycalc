@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venezuela Currency Calculator - Auto-Updated BCV Rate</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .calculator {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .rate-status {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .rate-status.loading {
+            background: #fef3c7;
+            border-color: #f59e0b;
+        }
+        
+        .rate-status.error {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .rate-status.success {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .rate-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .rate-label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .rate-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0ea5e9;
+        }
+        
+        .update-time {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+        
+        .refresh-btn {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .refresh-btn:hover {
+            background: #0284c7;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .input-with-label {
+            position: relative;
+        }
+        
+        .currency-label {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-weight: 600;
+        }
+        
+        .divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 25px 0;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .result.pay-dollars {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+        }
+        
+        .result.pay-bolivares {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .result-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-details {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .detail-label {
+            opacity: 0.9;
+        }
+        
+        .detail-value {
+            font-weight: bold;
+        }
+        
+        .savings-badge {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .info-box {
+            background: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
+            padding: 15px;
+            margin-top: 25px;
+            border-radius: 5px;
+        }
+        
+        .info-box h3 {
+            color: #0ea5e9;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .info-box ul {
+            margin-left: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .info-box li {
+            margin-bottom: 5px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator">
+            <h1>💱 Venezuela Currency Calculator</h1>
+            <p class="subtitle">Auto-updated BCV rates via GitHub Actions</p>
+            
+            <div class="rate-status loading" id="rateStatus">
+                <div class="rate-info">
+                    <span class="rate-label">BCV Official Rate:</span>
+                    <span class="rate-value" id="bcvRateDisplay">
+                        <span class="loading-spinner"></span>
+                    </span>
+                </div>
+                <div class="update-time" id="updateTime">Fetching latest rate...</div>
+                <button class="refresh-btn" onclick="fetchRates()" id="refreshBtn">↻ Refresh Rate</button>
+            </div>
+            
+            <div class="input-group">
+                <label for="friendRate">Friend/Market Rate (Bs per $1):</label>
+                <div class="input-with-label">
+                    <input type="number" id="friendRate" placeholder="45.50" step="0.01">
+                    <span class="currency-label">Bs/$</span>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="input-group">
+                <label for="dollarPrice">Store Price in Dollars:</label>
+                <div class="input-with-label">
+                    <input type="number" id="dollarPrice" placeholder="260" step="0.01">
+                    <span class="currency-label">$</span>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label for="bolivarPrice">Store Price in Bolivares:</label>
+                <div class="input-with-label">
+                    <input type="number" id="bolivarPrice" placeholder="11700" step="0.01">
+                    <span class="currency-label">Bs</span>
+                </div>
+            </div>
+            
+            <button class="calculate-btn" onclick="calculate()">
+                🧮 Calculate Best Option
+            </button>
+            
+            <div id="result"></div>
+            
+            <div class="info-box">
+                <h3>📱 How This Works</h3>
+                <ul>
+                    <li>BCV rate updates automatically every day at 8 AM (VE time)</li>
+                    <li>Powered by GitHub Actions (free automation)</li>
+                    <li>Works offline once rates are loaded</li>
+                    <li>Save as bookmark for quick access</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - CHANGE THIS TO YOUR GITHUB USERNAME AND REPO
+        const CONFIG = {
+            githubUser: 'tbalza',  // Change this!
+            githubRepo: 'currencycalc',         // Change this!
+            branch: 'main'
+        };
+        
+        // Global variable to store BCV rate
+        let bcvRate = null;
+        let lastUpdate = null;
+        
+        // Fetch rates from GitHub
+        async function fetchRates() {
+            const statusEl = document.getElementById('rateStatus');
+            const rateEl = document.getElementById('bcvRateDisplay');
+            const timeEl = document.getElementById('updateTime');
+            const btnEl = document.getElementById('refreshBtn');
+            
+            statusEl.className = 'rate-status loading';
+            rateEl.innerHTML = '<span class="loading-spinner"></span>';
+            timeEl.textContent = 'Fetching latest rate...';
+            btnEl.disabled = true;
+            
+            try {
+                // Try to fetch from your GitHub repo
+                const url = `https://raw.githubusercontent.com/${CONFIG.githubUser}/${CONFIG.githubRepo}/${CONFIG.branch}/data/current_rate.json`;
+                
+                const response = await fetch(url, {
+                    cache: 'no-cache'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Could not fetch rates');
+                }
+                
+                const data = await response.json();
+                
+                // Update global variables
+                bcvRate = data.bcv;
+                lastUpdate = new Date(data.updated);
+                
+                // Update UI
+                statusEl.className = 'rate-status success';
+                rateEl.textContent = `${bcvRate.toFixed(2)} Bs/$`;
+                
+                // Format update time
+                const now = new Date();
+                const hoursSince = Math.round((now - lastUpdate) / (1000 * 60 * 60));
+                const dateStr = lastUpdate.toLocaleDateString('es-VE');
+                
+                if (hoursSince < 1) {
+                    timeEl.textContent = `Updated just now (${dateStr})`;
+                } else if (hoursSince < 24) {
+                    timeEl.textContent = `Updated ${hoursSince} hours ago (${dateStr})`;
+                } else {
+                    const daysSince = Math.round(hoursSince / 24);
+                    timeEl.textContent = `Updated ${daysSince} days ago (${dateStr})`;
+                }
+                
+                // Store in localStorage for offline use
+                localStorage.setItem('bcvRate', JSON.stringify({
+                    rate: bcvRate,
+                    updated: data.updated,
+                    date: data.date
+                }));
+                
+                // Auto-populate BCV rate in friend rate if empty
+                const friendRateInput = document.getElementById('friendRate');
+                if (!friendRateInput.value) {
+                    friendRateInput.value = bcvRate.toFixed(2);
+                }
+                
+            } catch (error) {
+                console.error('Error fetching rates:', error);
+                
+                // Try to load from localStorage
+                const cached = localStorage.getItem('bcvRate');
+                if (cached) {
+                    const data = JSON.parse(cached);
+                    bcvRate = data.rate;
+                    lastUpdate = new Date(data.updated);
+                    
+                    statusEl.className = 'rate-status error';
+                    rateEl.textContent = `${bcvRate.toFixed(2)} Bs/$ (cached)`;
+                    timeEl.textContent = `Using cached rate from ${new Date(data.date).toLocaleDateString('es-VE')}. GitHub fetch failed.`;
+                } else {
+                    // Fallback to hardcoded rate
+                    bcvRate = 40.50;  // Update this fallback value periodically
+                    
+                    statusEl.className = 'rate-status error';
+                    rateEl.textContent = `${bcvRate.toFixed(2)} Bs/$ (fallback)`;
+                    timeEl.innerHTML = `Could not fetch live rate.<br>Configure GitHub in the code or enter manually.`;
+                }
+            } finally {
+                btnEl.disabled = false;
+            }
+        }
+        
+        function calculate() {
+            const friendRate = parseFloat(document.getElementById('friendRate').value);
+            const dollarPrice = parseFloat(document.getElementById('dollarPrice').value);
+            const bolivarPrice = parseFloat(document.getElementById('bolivarPrice').value);
+            
+            if (!friendRate || !dollarPrice || !bolivarPrice) {
+                document.getElementById('result').innerHTML = `
+                    <div class="result" style="background: #ef4444; color: white;">
+                        <div class="result-title">⚠️ Please fill in all fields</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Calculate implied exchange rate
+            const impliedRate = bolivarPrice / dollarPrice;
+            
+            // Calculate costs
+            const directDollarCost = dollarPrice;
+            const viaFriendCost = bolivarPrice / friendRate;
+            const viaBcvCost = bcvRate ? bolivarPrice / bcvRate : null;
+            
+            // Determine best option
+            let bestOption, resultClass, icon;
+            let savings = 0;
+            
+            if (viaFriendCost < directDollarCost) {
+                bestOption = 'Exchange through friend & pay in Bolivares';
+                resultClass = 'pay-bolivares';
+                icon = '✅';
+                savings = ((directDollarCost - viaFriendCost) / directDollarCost * 100).toFixed(1);
+            } else if (viaFriendCost > directDollarCost) {
+                bestOption = 'Pay directly in Dollars';
+                resultClass = 'pay-dollars';
+                icon = '💵';
+                savings = ((viaFriendCost - directDollarCost) / viaFriendCost * 100).toFixed(1);
+            } else {
+                bestOption = 'Both options cost the same';
+                resultClass = 'pay-dollars';
+                icon = '🤝';
+            }
+            
+            // Build result HTML
+            let resultHTML = `
+                <div class="result ${resultClass}">
+                    <div class="result-title">
+                        ${icon} ${bestOption}
+                    </div>
+                    
+                    <div class="result-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Store's implied rate:</span>
+                            <span class="detail-value">${impliedRate.toFixed(2)} Bs/$</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Your friend's rate:</span>
+                            <span class="detail-value">${friendRate.toFixed(2)} Bs/$</span>
+                        </div>
+                        ${bcvRate ? `
+                        <div class="detail-row">
+                            <span class="detail-label">BCV official rate:</span>
+                            <span class="detail-value">${bcvRate.toFixed(2)} Bs/$</span>
+                        </div>
+                        ` : ''}
+                        
+                        <div class="divider" style="margin: 15px 0; background: rgba(255,255,255,0.3);"></div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Direct payment:</span>
+                            <span class="detail-value">$${directDollarCost.toFixed(2)}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Via friend:</span>
+                            <span class="detail-value">$${viaFriendCost.toFixed(2)}</span>
+                        </div>
+                        ${viaBcvCost ? `
+                        <div class="detail-row">
+                            <span class="detail-label">Via BCV:</span>
+                            <span class="detail-value">$${viaBcvCost.toFixed(2)}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    ${savings > 0 ? `
+                    <div class="savings-badge">
+                        💰 You save ${savings}% with this option!
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            document.getElementById('result').innerHTML = resultHTML;
+        }
+        
+        // Auto-calculate when inputs change
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch rates on load
+            fetchRates();
+            
+            // Add event listeners
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', calculate);
+            });
+            
+            // Check for GitHub config
+            if (CONFIG.githubUser === 'YOUR_GITHUB_USERNAME') {
+                console.warn('Please configure your GitHub username and repository in the CONFIG object!');
+                document.getElementById('updateTime').innerHTML += '<br><strong>⚠️ Configure GitHub settings in code!</strong>';
+            }
+        });
+    </script>
+</body>
+</html>

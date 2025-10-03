@@ -1,0 +1,42 @@
+name: Update BCV Exchange Rate
+
+on:
+  schedule:
+    # Runs at 12:00 PM UTC every day (8:00 AM Venezuelan time)
+    - cron: '0 12 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+  push:
+    branches: [ main ]
+    paths:
+      - 'scripts/update_rate.py'
+
+permissions:
+  contents: write
+
+jobs:
+  update-rate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+        
+    - name: Install dependencies
+      run: |
+        pip install requests beautifulsoup4 lxml
+        
+    - name: Run update script
+      run: python scripts/update_rate.py
+      
+    - name: Commit and push if changed
+      run: |
+        git config --global user.name 'GitHub Actions Bot'
+        git config --global user.email 'actions@github.com'
+        git add -A
+        timestamp=$(date -u)
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Update BCV rate: ${timestamp}" && git push)
