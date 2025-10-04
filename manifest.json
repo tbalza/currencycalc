@@ -4,8 +4,8 @@
   "description": "Currency calculator with auto-updated BCV exchange rates",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#667eea",
-  "theme_color": "#667eea",
+  "background_color": "#9ca3af",
+  "theme_color": "#9ca3af",
   "orientation": "portrait",
   "scope": "./",
   "icons": [
