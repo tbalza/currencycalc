@@ -23,6 +23,9 @@
     <!-- Cleave.js for elegant input formatting -->
     <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
     
+    <!-- Google Material Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
     <style>
         * {
             margin: 0;
@@ -373,12 +376,18 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        .material-symbols-outlined {
+            color: white;
+            vertical-align: middle;
+            font-size: inherit;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="calculator">
-            <h1>¿Pago en Dólares o en Bolivares?</h1>
+            <h1><span class="material-symbols-outlined">currency_exchange</span> ¿Pago en Dólares o en Bolivares?</h1>
             
             <div class="rate-status loading" id="rateStatus">
                 <div class="rate-info">
@@ -388,7 +397,7 @@
                     </span>
                 </div>
                 <div class="update-time" id="updateTime">Fetching latest rate...</div>
-                <button class="refresh-btn" onclick="fetchRates()" id="refreshBtn">↻ Refresh Rate</button>
+                <button class="refresh-btn" onclick="fetchRates()" id="refreshBtn"><span class="material-symbols-outlined">refresh</span> Refresh Rate</button>
             </div>
             
             <div class="input-group" data-step="1">
@@ -561,17 +570,17 @@
             if (viaFriendCost < directDollarCost) {
                 bestOption = 'Have your friend buy it for you';
                 resultClass = 'pay-bolivares';
-                icon = '✅';
+                icon = '<span class="material-symbols-outlined">check_circle</span>';
                 savings = ((directDollarCost - viaFriendCost) / directDollarCost * 100).toFixed(1);
             } else if (viaFriendCost > directDollarCost) {
                 bestOption = 'Buy it yourself with dollars';
                 resultClass = 'pay-dollars';
-                icon = '💵';
+                icon = '<span class="material-symbols-outlined">payments</span>';
                 savings = ((viaFriendCost - directDollarCost) / viaFriendCost * 100).toFixed(1);
             } else {
                 bestOption = 'Both options cost the same';
                 resultClass = 'pay-dollars';
-                icon = '🤝';
+                icon = '<span class="material-symbols-outlined">handshake</span>';
             }
             
             // Build result HTML
@@ -615,7 +624,7 @@
                     
                     ${savings > 0 ? `
                     <div class="savings-badge">
-                        💰 You save ${savings}% with this option!
+                        <span class="material-symbols-outlined">savings</span> You save ${savings}% with this option!
                     </div>
                     ` : ''}
                 </div>
@@ -649,7 +658,7 @@
         
         function showInstallButton() {
             const installBtn = document.createElement('button');
-            installBtn.innerHTML = '📱 Install App';
+            installBtn.innerHTML = '<span class="material-symbols-outlined">install_mobile</span> Install App';
             installBtn.className = 'refresh-btn';
             installBtn.style.marginTop = '10px';
             installBtn.onclick = installApp;
