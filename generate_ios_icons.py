@@ -24,6 +24,7 @@ IOS_SIZES = [
     167,   # iPad Pro (2x)
     180,   # Home screen iOS 7-13 (3x)
     192,   # Android Chrome
+    512,   # PWA standard
     1024,  # App Store
 ]
 
