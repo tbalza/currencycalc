@@ -1,4 +1,4 @@
-name: Update BCV Exchange Rate
+name: Update BCV Rate & PWA Version
 
 on:
   schedule:
@@ -7,8 +7,6 @@ on:
   workflow_dispatch: # Allows manual trigger from GitHub Actions tab
   push:
     branches: [ main ]
-    paths:
-      - 'scripts/update_rate.py'
 
 permissions:
   contents: write
@@ -32,11 +30,18 @@ jobs:
         
     - name: Run update script
       run: python scripts/update_rate.py
-      
+
+    - name: Update service worker version
+      run: |
+        # Update SW_VERSION in sw.js to trigger PWA cache update
+        timestamp=$(date +%s)
+        sed -i "s/const SW_VERSION = .*/const SW_VERSION = $timestamp;/" sw.js
+        echo "Updated SW_VERSION to $timestamp"
+
     - name: Commit and push if changed
       run: |
         git config --global user.name 'GitHub Actions Bot'
         git config --global user.email 'actions@github.com'
         git add -A
         timestamp=$(date -u)
-        git diff --quiet && git diff --staged --quiet || (git commit -m "Update BCV rate: ${timestamp}" && git push)
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update: ${timestamp}" && git push)

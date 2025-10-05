@@ -1,4 +1,5 @@
-const CACHE_NAME = 've-calc-v1';
+const SW_VERSION = 1;
+const CACHE_NAME = `ve-calc-v${SW_VERSION}`;
 const urlsToCache = [
   './',
   './index.html',
