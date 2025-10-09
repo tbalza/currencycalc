@@ -1,14 +1,14 @@
 {
-  "timestamp": "2025-10-09T00:01:22.692367",
+  "timestamp": "2025-10-09T06:01:14.677633",
   "date": "2025-10-09",
   "rates": {
-    "bcv": 189.26,
+    "bcv": 191.37,
     "source": "ExchangeRate-API",
-    "last_update": "2025-10-09T00:01:22.692420"
+    "last_update": "2025-10-09T06:01:14.677708"
   },
   "all_rates": {
     "bcv_official": null,
-    "exchangerate_api": 189.26
+    "exchangerate_api": 191.37
   },
   "history": [
     {
@@ -130,6 +130,11 @@
       "date": "2025-10-09",
       "bcv": 189.26,
       "timestamp": "2025-10-09T00:01:22.692367"
+    },
+    {
+      "date": "2025-10-09",
+      "bcv": 191.37,
+      "timestamp": "2025-10-09T06:01:14.677633"
     }
   ]
 }
