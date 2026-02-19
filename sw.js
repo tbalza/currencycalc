@@ -1,4 +1,4 @@
-const SW_VERSION = 1771502752;
+const SW_VERSION = 1771524739;
 const CACHE_NAME = `ve-calc-v${SW_VERSION}`;
 const urlsToCache = [
   './',
